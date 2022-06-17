@@ -16,7 +16,6 @@ class _LoginViewState extends State<LoginView> {
   Column _textFields(
     String name,
     String hintText,
-    validator,
     TextEditingController? controller,
   ) {
     return Column(
@@ -31,8 +30,7 @@ class _LoginViewState extends State<LoginView> {
         const SizedBox(
           height: 8,
         ),
-        TextFormField(
-          validator: validator,
+        TextField(
           controller: controller,
           decoration: InputDecoration(
             hintText: hintText,
@@ -140,18 +138,11 @@ class _LoginViewState extends State<LoginView> {
                     _textFields(
                       'Email',
                       'E-Mail',
-                      (value) {
-                        if (value.text != null && (value.contains('@'))) {
-                          print('No Error ');
-                        }
-                        print('Errors');
-                      },
                       _emailController,
                     ),
                     const SizedBox(height: 29),
                     _textFields(
                       'Password',
-                      "Password",
                       "Password",
                       _passwordController,
                     ),

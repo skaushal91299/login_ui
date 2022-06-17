@@ -17,6 +17,7 @@ class _LoginViewState extends State<LoginView> {
     String name,
     String hintText,
     TextEditingController? controller,
+    bool obscureText,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,6 +33,7 @@ class _LoginViewState extends State<LoginView> {
         ),
         TextField(
           controller: controller,
+          obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hintText,
             contentPadding: const EdgeInsets.only(
@@ -139,12 +141,14 @@ class _LoginViewState extends State<LoginView> {
                       'Email',
                       'E-Mail',
                       _emailController,
+                      false,
                     ),
                     const SizedBox(height: 29),
                     _textFields(
                       'Password',
                       "Password",
                       _passwordController,
+                      true,
                     ),
                     const SizedBox(height: 10),
                     Container(

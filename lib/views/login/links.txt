@@ -1,0 +1,12 @@
+https://rrtutors.com/tutorials/flutter-user-registration-and-login-with-php-mysql
+https://stackoverflow.com/questions/68767417/flutter-registration-with-api
+https://flutteragency.com/do-textfield-validation/
+https://medium.com/nerd-for-tech/multipartrequest-in-http-for-sending-images-videos-via-post-request-in-flutter-e689a46471ab
+https://github.com/flutter-devs/rest_API_demo/blob/master/lib/fruit.dart
+https://mobikul.com/http-api-calling-in-flutter/
+https://medium.flutterdevs.com/using-rest-api-in-flutter-d19e6eb972b8
+https://pub.dev/packages/json_serializable
+https://medium.datadriveninvestor.com/integrating-apis-in-flutter-897cc6bf3f73
+https://www.codewithflutter.com/flutter-fetch-data-from-api-rest-api-example/
+https://www.geeksforgeeks.org/http-get-response-in-flutter/
+https://pub.dev/documentation/http/latest/

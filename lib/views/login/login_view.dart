@@ -164,7 +164,9 @@ class _LoginViewState extends State<LoginView> {
                     const SizedBox(height: 35),
                     MaterialButton(
                       minWidth: Get.width,
-                      onPressed: () {},
+                      onPressed: () {
+                        print('Login Button Clicked');
+                      },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           vertical: 12,

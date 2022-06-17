@@ -170,6 +170,7 @@ class _LoginViewState extends State<LoginView> {
                           borderRadius: BorderRadius.circular(25),
                           color: Color.fromRGBO(240, 148, 51, 1),
                         ),
+                        // ! Button Width Mismatch
                         child: Text(
                           'LOGIN',
                           textAlign: TextAlign.center,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
+import 'package:login_ui/views/login/login_success.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -17,24 +18,43 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  void login(String email, password) async {
+  login(String email, password) async {
     try {
-      var response = await post(Uri.parse('https://reqres.in/api/login'),
-          body: {'email': email, 'password': password});
+      var url = Uri.parse('https://reqres.in/api/login');
+      var response = await post(
+        url,
+        body: {
+          'email': email,
+          'password': password,
+        },
+      );
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body.toString());
         print(data['token']);
         print('Login successfully');
+
+        return Get.to(() => const LoginSuccess());
       } else {
         print('failed');
+        return Get.snackbar(
+          'Error',
+          'Please fill all Fields',
+          snackPosition: SnackPosition.BOTTOM,
+          colorText: Colors.white,
+          icon: Icon(Icons.dangerous),
+          backgroundColor: Color.fromARGB(255, 242, 74, 63),
+        );
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
+// Text Fields
   Column _textFields(
+    textInputType,
+    String? Function(String?) validator,
     String name,
     String hintText,
     controller,
@@ -52,7 +72,9 @@ class _LoginViewState extends State<LoginView> {
         const SizedBox(
           height: 8,
         ),
-        TextField(
+        TextFormField(
+          keyboardType: textInputType,
+          validator: validator,
           controller: controller,
           obscureText: obscureText,
           decoration: InputDecoration(
@@ -73,6 +95,7 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
+// Button Border
   OutlineInputBorder _border() {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
@@ -138,6 +161,7 @@ class _LoginViewState extends State<LoginView> {
                   horizontal: 25,
                 ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Container(
                       alignment: Alignment.centerLeft,
@@ -157,15 +181,27 @@ class _LoginViewState extends State<LoginView> {
                         color: const Color.fromRGBO(138, 138, 138, 1),
                       ),
                     ),
-                    const SizedBox(height: 35),
+                    const SizedBox(height: 25),
                     _textFields(
+                      TextInputType.emailAddress,
+                      (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Error";
+                        }
+                      },
                       'Email',
                       'E-Mail',
                       emailController,
                       false,
                     ),
-                    const SizedBox(height: 29),
+                    const SizedBox(height: 10),
                     _textFields(
+                      TextInputType.text,
+                      (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Password Length is too Short';
+                        }
+                      },
                       'Password',
                       "Password",
                       passwordController,
@@ -182,10 +218,9 @@ class _LoginViewState extends State<LoginView> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 35),
-                    MaterialButton(
-                      minWidth: Get.width,
-                      onPressed: () {
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () {
                         login(
                           emailController.text.toString(),
                           passwordController.text.toString(),
@@ -197,23 +232,16 @@ class _LoginViewState extends State<LoginView> {
                           vertical: 12,
                         ),
                         width: Get.width,
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(25),
                           color: Color.fromRGBO(240, 148, 51, 1),
                         ),
-                        // ! Button Width Mismatch
-                        child: Text(
-                          'LOGIN',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: Text('LOGIN'),
                       ),
                     ),
                     const SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
                     Text(
                       '----Or Login With----',
@@ -224,11 +252,10 @@ class _LoginViewState extends State<LoginView> {
                       ),
                     ),
                     const SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
-                    MaterialButton(
-                      minWidth: Get.width,
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         Get.snackbar(
                             snackPosition: SnackPosition.BOTTOM,
                             'Facebook Button CLickd',
@@ -276,7 +303,7 @@ class _LoginViewState extends State<LoginView> {
                       ),
                     ),
                     const SizedBox(
-                      height: 31,
+                      height: 10,
                     ),
                     RichText(
                       text: TextSpan(

@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -11,12 +14,30 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  late TextEditingController? _emailController;
-  late TextEditingController? _passwordController;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  void login(String email, password) async {
+    try {
+      var response = await post(Uri.parse('https://reqres.in/api/login'),
+          body: {'email': email, 'password': password});
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body.toString());
+        print(data['token']);
+        print('Login successfully');
+      } else {
+        print('failed');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   Column _textFields(
     String name,
     String hintText,
-    TextEditingController? controller,
+    controller,
     bool obscureText,
   ) {
     return Column(
@@ -140,14 +161,14 @@ class _LoginViewState extends State<LoginView> {
                     _textFields(
                       'Email',
                       'E-Mail',
-                      _emailController,
+                      emailController,
                       false,
                     ),
                     const SizedBox(height: 29),
                     _textFields(
                       'Password',
                       "Password",
-                      _passwordController,
+                      passwordController,
                       true,
                     ),
                     const SizedBox(height: 10),
@@ -165,6 +186,10 @@ class _LoginViewState extends State<LoginView> {
                     MaterialButton(
                       minWidth: Get.width,
                       onPressed: () {
+                        login(
+                          emailController.text.toString(),
+                          passwordController.text.toString(),
+                        );
                         print('Login Button Clicked');
                       },
                       child: Container(

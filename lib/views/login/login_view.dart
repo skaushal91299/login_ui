@@ -1,11 +1,12 @@
-import 'dart:convert';
+// ignore_for_file: avoid_print
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart';
-import 'package:login_ui/views/login/login_success.dart';
+import 'functions.dart';
+import 'widgets/text_field.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -18,82 +19,8 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  login(String email, password) async {
-    try {
-      var url = Uri.parse('https://reqres.in/api/login');
-      var response = await post(
-        url,
-        body: {
-          'email': email,
-          'password': password,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body.toString());
-        print(data['token']);
-        print('Login successfully');
-
-        return Get.to(() => const LoginSuccess());
-      } else {
-        print('failed');
-        return Get.snackbar(
-          'Error',
-          "Internal server error",
-          snackPosition: SnackPosition.BOTTOM,
-          colorText: Colors.white,
-          icon: Icon(Icons.dangerous),
-          backgroundColor: Color.fromARGB(255, 242, 74, 63),
-        );
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
-// Text Fields
-  Column _textFields(
-    textInputType,
-    String? Function(String?) validator,
-    String name,
-    String hintText,
-    controller,
-    bool obscureText,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          name,
-          style: GoogleFonts.outfit(
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-        TextFormField(
-          keyboardType: textInputType,
-          validator: validator,
-          controller: controller,
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            hintText: hintText,
-            contentPadding: const EdgeInsets.only(
-              left: 12,
-            ),
-            hintStyle: GoogleFonts.outfit(
-              fontSize: 18,
-              color: const Color.fromRGBO(202, 202, 202, 1),
-            ),
-            border: _border(),
-            enabledBorder: _border(),
-            focusedBorder: _border(),
-          ),
-        ),
-      ],
-    );
-  }
+  bool _isLoggedIn = false;
+  Map _userDetails = {};
 
   bool isValidEmail(email) {
     return RegExp(
@@ -101,16 +28,7 @@ class _LoginViewState extends State<LoginView> {
         .hasMatch(email);
   }
 
-// Button Border
-  OutlineInputBorder _border() {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide: const BorderSide(
-        color: Color.fromRGBO(240, 148, 51, 1),
-        width: 1.0,
-      ),
-    );
-  }
+  //
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +61,7 @@ class _LoginViewState extends State<LoginView> {
                       // image: DecorationImage(
                       //   image: AssetImage('assets/images/login/1.png'),
                       // ),
-                      color: Color.fromARGB(255, 245, 187, 126),
+                      color: const Color.fromARGB(255, 245, 187, 126),
                       borderRadius: BorderRadius.vertical(
                         bottom: Radius.elliptical(
                           Get.width,
@@ -188,12 +106,13 @@ class _LoginViewState extends State<LoginView> {
                       ),
                     ),
                     const SizedBox(height: 25),
-                    _textFields(
+                    textFields(
                       TextInputType.emailAddress,
                       (value) {
                         if (value == null || value.isEmpty) {
                           return "Error";
                         }
+                        return null;
                       },
                       'Email',
                       'E-Mail',
@@ -201,12 +120,13 @@ class _LoginViewState extends State<LoginView> {
                       false,
                     ),
                     const SizedBox(height: 10),
-                    _textFields(
+                    textFields(
                       TextInputType.text,
                       (value) {
                         if (value == null || value.isEmpty) {
                           return 'Password Length is too Short';
                         }
+                        return null;
                       },
                       'Password',
                       "Password",
@@ -231,15 +151,19 @@ class _LoginViewState extends State<LoginView> {
                           //toast
                           //email is empty
                           print('E-Mail Is Empty');
+                          snackBar('E-Mail is Empty');
                         } else if (!isValidEmail(emailController.text.trim())) {
                           //show msg for invalid email
                           print('Please Enter Valid Email');
+                          snackBar('Please Enter a Valid E-Mail');
                         } else if (passwordController.text.trim().isEmpty) {
                           //show msg for empty pasword
                           print('Please Enter Password');
+                          snackBar('Please Enter Password');
                         } else if (passwordController.text.trim().length < 6) {
                           // show msg
                           print('Password Length Should be greater than 6');
+                          snackBar('Password Length Should be greater than 6');
                         } else {
                           login(
                             emailController.text.toString(),
@@ -256,9 +180,9 @@ class _LoginViewState extends State<LoginView> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(25),
-                          color: Color.fromRGBO(240, 148, 51, 1),
+                          color: const Color.fromRGBO(240, 148, 51, 1),
                         ),
-                        child: Text('LOGIN'),
+                        child: const Text('LOGIN'),
                       ),
                     ),
                     const SizedBox(
@@ -276,11 +200,22 @@ class _LoginViewState extends State<LoginView> {
                       height: 10,
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Get.snackbar(
-                            snackPosition: SnackPosition.BOTTOM,
-                            'Facebook Button CLickd',
-                            '');
+                      onTap: () async {
+                        var result = await FacebookAuth.instance.login(
+                          permissions: [
+                            "email",
+                            "public_profile",
+                          ],
+                        ).then((value) {
+                          FacebookAuth.instance.getUserData().then((userData) {
+                            setState(() {
+                              _isLoggedIn = true;
+                              _userDetails = userData;
+                            });
+                          });
+                        });
+
+                        print('Facebook Button Clicked');
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(

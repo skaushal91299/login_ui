@@ -39,7 +39,7 @@ class _LoginViewState extends State<LoginView> {
         print('failed');
         return Get.snackbar(
           'Error',
-          'Please fill all Fields',
+          "Internal server error",
           snackPosition: SnackPosition.BOTTOM,
           colorText: Colors.white,
           icon: Icon(Icons.dangerous),
@@ -93,6 +93,12 @@ class _LoginViewState extends State<LoginView> {
         ),
       ],
     );
+  }
+
+  bool isValidEmail(email) {
+    return RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(email);
   }
 
 // Button Border
@@ -221,11 +227,26 @@ class _LoginViewState extends State<LoginView> {
                     const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        login(
-                          emailController.text.toString(),
-                          passwordController.text.toString(),
-                        );
-                        print('Login Button Clicked');
+                        if (emailController.text.trim().isEmpty) {
+                          //toast
+                          //email is empty
+                          print('E-Mail Is Empty');
+                        } else if (!isValidEmail(emailController.text.trim())) {
+                          //show msg for invalid email
+                          print('Please Enter Valid Email');
+                        } else if (passwordController.text.trim().isEmpty) {
+                          //show msg for empty pasword
+                          print('Please Enter Password');
+                        } else if (passwordController.text.trim().length < 6) {
+                          // show msg
+                          print('Password Length Should be greater than 6');
+                        } else {
+                          login(
+                            emailController.text.toString(),
+                            passwordController.text.toString(),
+                          );
+                          print('Login Button Clicked');
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
